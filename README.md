@@ -1,59 +1,39 @@
 # Hero Wallet Deeplinks
 
-Static deeplink bounce pages for the Hero Wallet ecosystem. Each page reads the
-query string, redirects to the app's custom scheme, and falls back to a tappable
-button after 1.5s if the app did not open.
+This repository contains static deeplink landing pages for Hero Wallet and Hero Business. Each page reads the query string, tries to open the native app through a custom URL scheme, and shows a fallback button if the app does not launch.
 
-These pages exist so that links shared in WhatsApp (and other apps that only
-linkify `https://`) are tappable. They are plain static HTML — no build step.
+These pages are used when a link is shared through WhatsApp or other platforms that only preserve an HTTPS URL. They are plain static HTML files with no build step.
 
-## Contents
+## Pages
 
-| Folder     | Scheme                                            | App           |
-| ---------- | ------------------------------------------------- | ------------- |
-| `contact/` | `herowallet://contact?id=`                        | Hero Wallet   |
-| `pay/`     | `herowallet://pay?id=`                            | Hero Wallet   |
-| `staff/`   | `herowalletbusiness://staff?token=&merchantId=`   | Hero Business |
+| Path | Example | Purpose |
+| ---- | ------- | ------- |
+| `contact/` | `/contact/?id=123` | Opens `herowallet://contact?id=123` |
+| `pay/` | `/pay/?id=123` | Opens `herowallet://pay?id=123` |
+| `staff/` | `/staff/?token=abc&merchantId=42` | Opens `herowalletbusiness://staff?token=abc&merchantId=42` |
 
-`staff/` additionally renders a desktop view with a QR code and an APK download
-link, since staff invites are often opened on a laptop.
+The `staff/` page also renders a desktop-friendly view with a QR code and an APK download link for laptop opens.
 
-## Hosting
+## Local testing
 
-Uploaded to S3 behind CloudFront, one bucket per environment:
+Serve the folder locally and open the pages in a browser:
 
-| Environment | Bucket                            |
-| ----------- | --------------------------------- |
-| development | `deeplink.herowallet.development` |
+```bash
+python3 -m http.server 8000
+```
 
-Upload is currently manual. The folder layout in this repo mirrors the bucket
-layout exactly, so the whole tree can be synced as-is:
+Then visit:
+
+- http://localhost:8000/contact/?id=demo
+- http://localhost:8000/pay/?id=demo
+- http://localhost:8000/staff/?token=demo&merchantId=1
+
+## Deployment
+
+The repository mirrors the S3/CloudFront bucket layout. Uploads are currently manual:
 
 ```bash
 aws s3 sync . s3://deeplink.herowallet.development \
   --exclude "README.md" --exclude ".git/*"
 ```
 
-## Consumers
-
-- Hero Wallet — `lib/core/config/deep_links.dart` builds the URLs;
-  `lib/core/services/deep_link_service.dart` handles the incoming scheme.
-- Hero Business — `lib/core/services/deep_link_service.dart` handles
-  `herowalletbusiness://staff`.
-
-Android registers each scheme via `intent-filter` in `AndroidManifest.xml`.
-
-## Known issues
-
-- **Dead QR endpoint.** `staff/index.html` builds its QR via
-  `chart.googleapis.com/chart?cht=qr`, which Google has shut down. The image
-  does not render; only the text APK link below it works.
-- **Hardcoded APK link.** The Hero Business APK points at a fixed Google Drive
-  *preview* URL, not a direct download. Do not copy `staff/index.html` to
-  sandbox or production as-is.
-- **Tablet detection.** The desktop check is `innerWidth > 768` plus a
-  `Mobi|Android` UA test, so iPads get the desktop QR view instead of the
-  deeplink attempt.
-- **No verified App Links.** These pages rely on custom-scheme redirects. There
-  is no `assetlinks.json` or `apple-app-site-association` anywhere in the
-  ecosystem, so links are not verified by the OS.
