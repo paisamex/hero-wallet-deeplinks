@@ -12,7 +12,7 @@
 <body>
   <p id="status">Abriendo Hero Wallet…</p>
   <a id="open-link" style="display:none" class="btn">Abrir Hero Wallet</a>
-  <p class="sub" id="sub" style="display:none">Si la app no se abrió, toca el botón.</p>
+  <p class="sub" id="sub" style="display:none">Si la app no se abrió, toca el botón para continuar.</p>
   <script>
     var id = new URLSearchParams(window.location.search).get('id');
     if (id) {
@@ -20,10 +20,17 @@
       var link = document.getElementById('open-link');
       link.href = deepLink;
 
-      // Try automatic redirect via an <a> click (works in Safari)
-      // and via location.href (works in some Chrome versions).
-      // iOS Chrome may block JS-initiated custom scheme navigations
-      // without a user gesture, so we show a manual button as fallback.
+      // Try automatic redirect via an iframe and location.href.
+      // This gives the OS a better chance to open the custom scheme,
+      // while the button still remains as a fallback.
+      try {
+        var iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = deepLink;
+        document.body.appendChild(iframe);
+        setTimeout(function() { iframe.remove(); }, 1000);
+      } catch (e) {}
+
       try { window.location.href = deepLink; } catch(e) {}
 
       // If the app opened, the page is hidden. If not, show the manual button.

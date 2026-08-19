@@ -33,13 +33,21 @@
 <body>
   <p id="status">Abriendo Hero Wallet…</p>
   <a id="open-link" style="display:none" class="btn">Abrir Hero Wallet</a>
-  <p class="sub" id="sub" style="display:none">Si la app no se abrió, toca el botón.</p>
+  <p class="sub" id="sub" style="display:none">Si la app no se abrió, toca el botón para continuar.</p>
   <script>
     var id = new URLSearchParams(window.location.search).get('id');
     if (id) {
       var deepLink = 'herowallet://pay?id=' + encodeURIComponent(id);
       var link = document.getElementById('open-link');
       link.href = deepLink;
+
+      try {
+        var iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = deepLink;
+        document.body.appendChild(iframe);
+        setTimeout(function () { iframe.remove(); }, 1000);
+      } catch (e) { }
 
       try { window.location.href = deepLink; } catch (e) { }
 

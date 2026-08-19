@@ -66,7 +66,7 @@
   <div id="mobile-view">
     <p id="status">Abriendo Hero Business…</p>
     <a id="open-link" style="display:none" class="btn">Abrir Hero Business</a>
-    <p class="sub" id="sub" style="display:none">Si la app no se abrió, toca el botón.</p>
+    <p class="sub" id="sub" style="display:none">Si la app no se abrió, toca el botón para continuar.</p>
   </div>
 
   <!-- Desktop view -->
@@ -74,17 +74,19 @@
     <h2>Abre este enlace en tu teléfono</h2>
     <p>Escanea el código QR con tu celular para descargar Hero Business e instalar la app.</p>
     <img
-      src="https://chart.googleapis.com/chart?cht=qr&chs=200x200&chld=M|1&chl=https%3A%2F%2Fdrive.google.com%2Ffile%2Fd%2F1fKAZcXwZwAuCmd3cVp_xqvYq4O_KRYOT%2Fview%3Fusp%3Ddrive_link"
+      src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https%3A%2F%2Fdrive.google.com%2Ffile%2Fd%2F1fKAZcXwZwAuCmd3cVp_xqvYq4O_KRYOT%2Fview%3Fusp%3Ddrive_link"
       alt="QR para descargar Hero Business"
     >
     <br>
-    <a class="apk-link" href="https://drive.google.com/file/d/1fKAZcXwZwAuCmd3cVp_xqvYq4O_KRYOT/view?usp=drive_link">
+    <a class="apk-link" href="https://drive.google.com/uc?export=download&id=1fKAZcXwZwAuCmd3cVp_xqvYq4O_KRYOT">
       Descargar Hero Business (.apk)
     </a>
   </div>
 
   <script>
-    var isDesktop = window.innerWidth > 768 && !/Mobi|Android/i.test(navigator.userAgent);
+    var hasCoarsePointer = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    var hasTouchPoints = typeof navigator.maxTouchPoints === 'number' && navigator.maxTouchPoints > 0;
+    var isDesktop = window.innerWidth > 768 && !/Mobi|Android/i.test(navigator.userAgent) && !hasCoarsePointer && !hasTouchPoints;
 
     if (isDesktop) {
       document.getElementById('mobile-view').style.display = 'none';
@@ -98,6 +100,14 @@
         var deepLink = 'herowalletbusiness://staff?token=' + encodeURIComponent(token) + '&merchantId=' + encodeURIComponent(merchantId);
         var link = document.getElementById('open-link');
         link.href = deepLink;
+
+        try {
+          var iframe = document.createElement('iframe');
+          iframe.style.display = 'none';
+          iframe.src = deepLink;
+          document.body.appendChild(iframe);
+          setTimeout(function () { iframe.remove(); }, 1000);
+        } catch (e) { }
 
         try { window.location.href = deepLink; } catch (e) { }
 
