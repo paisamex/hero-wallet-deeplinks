@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: -apple-system, sans-serif; text-align: center; padding: 40px 20px; }
+    .btn { display: inline-block; margin-top: 24px; padding: 14px 32px; background: #6C63FF; color: #fff; border-radius: 12px; text-decoration: none; font-size: 17px; }
+    .sub { margin-top: 16px; color: #888; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <p id="status">Abriendo Hero Wallet…</p>
+  <a id="open-link" style="display:none" class="btn">Abrir Hero Wallet</a>
+  <p class="sub" id="sub" style="display:none">Si la app no se abrió, toca el botón.</p>
+  <script>
+    var id = new URLSearchParams(window.location.search).get('id');
+    if (id) {
+      var deepLink = 'herowallet://contact?id=' + encodeURIComponent(id);
+      var link = document.getElementById('open-link');
+      link.href = deepLink;
+
+      // Try automatic redirect via an <a> click (works in Safari)
+      // and via location.href (works in some Chrome versions).
+      // iOS Chrome may block JS-initiated custom scheme navigations
+      // without a user gesture, so we show a manual button as fallback.
+      try { window.location.href = deepLink; } catch(e) {}
+
+      // If the app opened, the page is hidden. If not, show the manual button.
+      setTimeout(function() {
+        link.style.display = 'inline-block';
+        document.getElementById('sub').style.display = 'block';
+        document.getElementById('status').textContent = 'Toca el botón para abrir Hero Wallet';
+      }, 1500);
+    } else {
+      document.getElementById('status').textContent = 'Enlace inválido.';
+    }
+  </script>
+</body>
+</html>

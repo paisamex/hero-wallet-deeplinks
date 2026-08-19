@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: -apple-system, sans-serif;
+      text-align: center;
+      padding: 40px 20px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 24px;
+      padding: 14px 32px;
+      background: #00C896;
+      color: #fff;
+      border-radius: 12px;
+      text-decoration: none;
+      font-size: 17px;
+    }
+
+    .sub {
+      margin-top: 16px;
+      color: #888;
+      font-size: 14px;
+    }
+
+    .desktop {
+      display: none;
+    }
+
+    .desktop h2 {
+      font-size: 20px;
+      color: #222;
+      margin-bottom: 8px;
+    }
+
+    .desktop p {
+      color: #555;
+      font-size: 15px;
+      margin-bottom: 24px;
+    }
+
+    .desktop img {
+      width: 200px;
+      height: 200px;
+    }
+
+    .desktop .apk-link {
+      display: inline-block;
+      margin-top: 20px;
+      font-size: 13px;
+      color: #00C896;
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Mobile view -->
+  <div id="mobile-view">
+    <p id="status">Abriendo Hero Business…</p>
+    <a id="open-link" style="display:none" class="btn">Abrir Hero Business</a>
+    <p class="sub" id="sub" style="display:none">Si la app no se abrió, toca el botón.</p>
+  </div>
+
+  <!-- Desktop view -->
+  <div class="desktop" id="desktop-view">
+    <h2>Abre este enlace en tu teléfono</h2>
+    <p>Escanea el código QR con tu celular para descargar Hero Business e instalar la app.</p>
+    <img
+      src="https://chart.googleapis.com/chart?cht=qr&chs=200x200&chld=M|1&chl=https%3A%2F%2Fdrive.google.com%2Ffile%2Fd%2F1fKAZcXwZwAuCmd3cVp_xqvYq4O_KRYOT%2Fview%3Fusp%3Ddrive_link"
+      alt="QR para descargar Hero Business"
+    >
+    <br>
+    <a class="apk-link" href="https://drive.google.com/file/d/1fKAZcXwZwAuCmd3cVp_xqvYq4O_KRYOT/view?usp=drive_link">
+      Descargar Hero Business (.apk)
+    </a>
+  </div>
+
+  <script>
+    var isDesktop = window.innerWidth > 768 && !/Mobi|Android/i.test(navigator.userAgent);
+
+    if (isDesktop) {
+      document.getElementById('mobile-view').style.display = 'none';
+      document.getElementById('desktop-view').style.display = 'block';
+    } else {
+      var params = new URLSearchParams(window.location.search);
+      var token = params.get('token');
+      var merchantId = params.get('merchantId');
+
+      if (token && merchantId) {
+        var deepLink = 'herowalletbusiness://staff?token=' + encodeURIComponent(token) + '&merchantId=' + encodeURIComponent(merchantId);
+        var link = document.getElementById('open-link');
+        link.href = deepLink;
+
+        try { window.location.href = deepLink; } catch (e) { }
+
+        setTimeout(function () {
+          link.style.display = 'inline-block';
+          document.getElementById('sub').style.display = 'block';
+          document.getElementById('status').textContent = 'Toca el botón para abrir Hero Business';
+        }, 1500);
+      } else {
+        document.getElementById('status').textContent = 'Enlace inválido.';
+      }
+    }
+  </script>
+</body>
+
+</html>
